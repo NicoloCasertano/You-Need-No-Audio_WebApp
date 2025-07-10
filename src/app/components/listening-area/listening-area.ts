@@ -28,48 +28,66 @@ import { AudioService } from '../../services/audio-service';
   	template: `
 		
 		<div class="container">
-
 			<!-- Waveform + Timeline -->
 			<div #waveformContainer class="waveform" [class.loaded]="audioLoaded"></div>
 			<div #timelineContainer id="timeline" [class.loaded]="audioLoaded"></div>
 
 			<!-- Pulsanti principali -->
 			<div class="controls" *ngIf="audioLoaded">
+				<button class="btn-play" (click)="togglePlay()">
+					<i [class.ls-icon-play]="!playing" [class.ls-icon-pause]="playing"></i>
+				</button>
+				<span class="time-display">
+					{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
+				</span>
+				<!-- Volume -->
+				<button class="btn-volume" (click)="toggleMute()">
+					<i [class.ls-icon-volume]="volume > 0" [class.ls-icon-mute]="volume === 0"></i>
+				</button>
+				<input
+					class="volume-slider"
+					type="range"
+					min="0" max="1" step="0.01"
+					[value]="volume"
+					(input)="onVolumeChange($event)"
+				/>
+				<div class="wave-progress">
+					<div
+					class="wave-progress-inner"
+					[style.width.%]="progressPercent"
+					></div>
+				</div>
+
 				<button (click)="togglePanel()">Plugins</button>
+				<div *ngIf="zoomActive" class="zoom-slider-wrapper">
+					<input
+						id="zoom-slider"
+						type="range"
+						min="1"
+						max="1000"
+						step="1"
+						[value]="zoomLevel"
+						(input)="onZoomSliderInput($event)"
+					/>
+				</div>
 			</div>
 
 			<!-- Pannello aggiuntivo (slide in/out) -->
 			<div class="slide-panels" [class.open]="showPanel && audioLoaded">
+				<button (click)="enableZoom($event)" [class.active]="zoomActive">Zoom</button>
 				<button (click)="enableEnvelope()" [class.active]="envelopeActive">Envelope</button>
-				
-				<div class="zoom-wrapper" *ngIf="!trackpadZoomEnabled">
-					<button (click)="enableZoom()" [class.active]="zoomActive">
-						Zoom
-					</button>
-
-					<div *ngIf="zoomActive" class="zoom-slider">
-						<input
-						id="zoom-slider"
-						type="range"
-						min="1"
-						max="200"
-						step="1"
-						[value]="zoomLevel"
-						(input)="onZoomSliderInput($event)"
-						/>
-					</div>
-				</div>
-				
-				<button (click)="enableRegions()" [class.active]="regionsActive">Regions</button><br>
+				<button (click)="enableRegions()" [class.active]="regionsActive">Regions</button>
 				<button (click)="enableHover()" [class.active]="hoverActive">Pointer</button>
+				<button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button>
+
 				<div class="spectrogram-wrapper">
-					<button (click)="showSpectrogram()" [class.active]="spectrogramVisible">
-						Spectrogram
-					</button>
-					<div #spectrogramContainer class="spectrogram"></div>
-					<div *ngIf="spectrogramLoading" class="water-loader">
-						<div class="water"></div>
+					<div *ngIf="!spectrogramVisible" class="droplet-loader">
+						<div *ngFor="let i of droplets" class="droplet-wrapper" [style.--i]="i">
+							<div class="droplet"></div>
+              				<div class="ripple"></div>
+						</div>
 					</div>
+					<div #spectrogramContainer class="spectrogram"></div>
 				</div>
 			</div>
 		</div>
@@ -101,6 +119,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	private isMobile = top!.matchMedia('(max-width: 900px)').matches;
 	private spectrogramPlugin?: ReturnType<typeof SpectrogramPlugin.create>;
 	private nextRegionHue = 180;
+	private zoomListenerSet = false;
 	
 
 	//dichiarazioni per wavesurfer
@@ -122,7 +141,12 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	maxZoom: number = 200;
 	minZoom: number = 1;
 	trackpadZoomEnabled: boolean = false;
-
+	droplets = Array.from({ length: 20 }, (_, i) => i);
+	currentTime = 0;
+	duration = 0;
+	progressPercent = 0;
+	volume = 1;
+	private prevVolume = 1;
 
 	//METODI LISTENING AREA
 
@@ -162,6 +186,23 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		if (this.nextRegionHue > 330) this.nextRegionHue = 180;
 		return color;
 	}
+	startWaveAnimation() {
+		const wrappers = document.querySelectorAll('.droplet-wrapper');
+		let offset = 0;
+		const loop = () => {
+			offset = (offset + 1) % 100;
+			wrappers.forEach((el, i) => {
+				const x = ((i / (wrappers.length - 1)) * 200 - 100) + offset;
+				(el as HTMLElement).style.transform = `translateX(${x}px)`;
+			});
+			requestAnimationFrame(loop);
+		};
+		loop();
+	}
+
+	togglePanel() {
+		this.showPanel = !this.showPanel;
+	}
 
 	ngAfterViewInit(): void {
 		const workId = Number(this.route.snapshot.paramMap.get('id'));
@@ -192,7 +233,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 							progressColor: '#ffffff',
 							cursorColor: '#333',
 							backend: 'MediaElement',
-							mediaControls: true,
+							mediaControls: false,
 							dragToSeek: true,
 							minPxPerSec: 100,
 							height: 100,
@@ -203,7 +244,9 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 						this.spectrogramRef.nativeElement.style.display = 'none';
 						this.wavesurfer.on('ready', () => {
 							this.audioLoaded = true;
-							// this.showSpectrogram();
+							this.duration = this.wavesurfer.getDuration();
+							this.currentTime = 0;
+							this.wavesurfer.setVolume(this.volume);
 						});
 
 						// this.wavesurfer.on('finish', () => {
@@ -211,7 +254,16 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 						// });
 
 						this.wavesurfer.load(audioUrl);
-					
+
+						this.wavesurfer.on('interaction', () => {
+							const container = this.wavesurfer.getWrapper();
+							container.addEventListener('wheel', this.onWheelZoomControl, { passive: false });
+						});
+						this.startWaveAnimation();
+						this.wavesurfer.on('audioprocess', (time: number) => {
+							this.currentTime = time;
+							this.progressPercent = (time / this.duration) * 100;
+						});
 					},
 					error: err => {
 						console.error('Errore download audio blob ', err)
@@ -223,7 +275,38 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			error: err => console.error('Errore recupero work', err)
 		});
 	}
+	formatTime(seconds: number): string {
+		const m = Math.floor(seconds / 60);
+		const s = Math.floor(seconds % 60);
+		const mm = m.toString().padStart(2, '0');
+		const ss = s.toString().padStart(2, '0');
+		return `${mm}:${ss}`;
+	}
 
+	togglePlay() {
+		if (this.playing) {
+			this.wavesurfer.pause();
+		} else {
+			this.wavesurfer.play();
+		}
+		this.playing = !this.playing;
+	}
+
+	onVolumeChange(event: Event): void {
+		this.volume = parseFloat((event.target as HTMLInputElement).value);
+		this.prevVolume = this.volume;
+		this.wavesurfer.setVolume(this.volume);
+	}
+
+	toggleMute(): void {
+		if (this.volume > 0) {
+			this.prevVolume = this.volume;
+    		this.volume = 0;
+		} else {
+			this.volume = this.prevVolume || 1;
+		}
+		this.wavesurfer.setVolume(this.volume);
+	}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if(changes['audioFileName'] && !changes['audioFileName'].isFirstChange()) {
@@ -232,6 +315,14 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			}
 		}
 	}
+
+	onWheelZoomControl = (event: WheelEvent) => {
+		if (!this.zoomActive) {
+			// Disattiva lo zoom con il trackpad se non è attivo
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	};
 
 
 	showSpectrogram():void {
@@ -290,12 +381,16 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			this.zoom = this.wavesurfer.registerPlugin(
 				ZoomPlugin.create({
 					scale: 0.5,
-					maxZoom: 1000,
+					maxZoom: 1000
 				})
 			);
-			this.wavesurfer.on('zoom', (minPxPerSec) =>
-				console.log('Zoom level:', minPxPerSec)
-			);
+			if(!this.zoomListenerSet) {
+				this.wavesurfer.on('zoom', (minPxPerSec) => {
+					this.zoomLevel = minPxPerSec
+				});
+				this.zoomListenerSet = true;
+			}
+			
 		}
 
 		this.zoomActive = !this.zoomActive;
@@ -335,11 +430,12 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		this.wavesurfer.on('click', (time: number) => {
 			if (!this.regionsActive) return;
 
+			time = this.wavesurfer.getCurrentTime();
 			const duration = this.wavesurfer.getDuration();
     		const regionDuration = 5;
+
 			const start = Math.max(0, time - regionDuration / 2);
 			const end = Math.min(duration, time + regionDuration / 2);
-
 			const color = this.getNextColor();
 
 			this.regionsPlugin!.addRegion({ start, end, color });
@@ -379,11 +475,12 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		if (hoverEl) hoverEl.style.display = this.hoverActive ? 'block' : 'none';
 	}
 
-	togglePanel() {
-		this.showPanel = !this.showPanel;
-	}
-
+	
 	ngOnDestroy(): void {
+		const container = this.wavesurfer?.getWrapper?.();
+		if (container) {
+			container.removeEventListener('wheel', this.onWheelZoomControl);
+		}
 		this.wavesurfer?.destroy();
 	}
 
