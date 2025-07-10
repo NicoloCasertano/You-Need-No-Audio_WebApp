@@ -4,7 +4,7 @@
   color: #f1f1f1;
   font-family: 'Segoe UI', sans-serif;
   padding: 1rem;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   max-width: 100%;
 }
 
@@ -93,11 +93,20 @@ button:hover {
   box-shadow: 0 0 15px #0ff;
 }
 
+.slide-panels button.active {
+  background-color: #0ff;
+  color: #000;
+  box-shadow: 0 0 15px #0ff;
+}
+
 audio {
   width: 100%;
   margin-top: 1rem;
+  color: rgb(6, 117, 117);
   filter: drop-shadow(0 0 8px #00ffff88);
   border-radius: 6px;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.3));
+  accent-color: #0ff;
 }
 
 /* Responsive */
@@ -106,4 +115,100 @@ audio {
     flex-direction: column;
     align-items: stretch;
   }
+}
+body {
+  background-color: #000;
+}
+
+
+
+/* SPECTROGRAM LOADER E WRAPPER: */
+.spectrogram-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid #0ff;
+}
+
+.water-loader {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.water {
+  position: absolute;
+  bottom: 0;
+  width: 200%;     /* doppia larghezza per onda */
+  height: 0;
+  background: rgba(0,255,255,0.4);
+  animation: fillWater 3s ease-in-out forwards, wave 1.5s linear infinite;
+}
+
+@keyframes fillWater {
+  to { height: 100%; }
+}
+
+@keyframes wave {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Slider zoom elegante */
+.zoom-wrapper {
+	margin-top: 1rem;
+	display: flex;
+	justify-content: center;
+}
+
+#zoom-slider {
+	-webkit-appearance: none;
+	width: 80%;
+	height: 8px;
+	background: linear-gradient(to right, #00ffff, #6c0d15);
+	border-radius: 5px;
+	outline: none;
+	transition: all 0.3s ease;
+	cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+	#zoom-slider {
+		width: 100%;
+	}
+}
+
+#zoom-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border: 2px solid #00ffff;
+	border-radius: 50%;
+	box-shadow: 0 0 4px rgba(0, 255, 255, 0.7);
+	transition: all 0.3s ease;
+}
+
+#zoom-slider::-moz-range-thumb {
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border: 2px solid #00ffff;
+	border-radius: 50%;
+	box-shadow: 0 0 4px rgba(0, 255, 255, 0.7);
+	cursor: pointer;
+}
+
+/* Stile per le regioni */
+.custom-region {
+  border: 1px dashed rgba(254, 253, 253, 0.915);
+  backdrop-filter: blur(2px);
+  cursor: ew-resize;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
 }

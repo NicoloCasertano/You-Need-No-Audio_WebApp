@@ -27,32 +27,51 @@ import { AudioService } from '../../services/audio-service';
 	imports: [CommonModule],
   	template: `
 		
-		
-				<!-- Waveform visibile solo quando l'audio è caricato -->
-		<div
-		class="waveform"
-		id="waveform"
-		[class.loaded]="audioLoaded"
-		*ngIf="audioLoaded"
-		></div>
+		<div class="container">
 
-		<!-- Spectrogram opzionale -->
-		<div
-		id="spectrogram"
-		class="spectrogram"
-		[class.loaded]="audioLoaded"
-		*ngIf="audioLoaded"
-		></div>
+			<!-- Waveform + Timeline -->
+			<div #waveformContainer class="waveform" [class.loaded]="audioLoaded"></div>
+			<div #timelineContainer id="timeline" [class.loaded]="audioLoaded"></div>
 
-		<!-- Pulsante Toggle -->
-		<button (click)="togglePanel()">Toggle Panel</button>
+			<!-- Pulsanti principali -->
+			<div class="controls" *ngIf="audioLoaded">
+				<button (click)="togglePanel()">Plugins</button>
+			</div>
 
-		<!-- Pannello con pulsanti -->
-		<div class="slide-panels" [class.open]="showPanel">
-		<button>Envelope</button>
-		<button>Zoom</button>
-		<button>Regions</button>
-		<button>Points</button>
+			<!-- Pannello aggiuntivo (slide in/out) -->
+			<div class="slide-panels" [class.open]="showPanel && audioLoaded">
+				<button (click)="enableEnvelope()" [class.active]="envelopeActive">Envelope</button>
+				
+				<div class="zoom-wrapper" *ngIf="!trackpadZoomEnabled">
+					<button (click)="enableZoom()" [class.active]="zoomActive">
+						Zoom
+					</button>
+
+					<div *ngIf="zoomActive" class="zoom-slider">
+						<input
+						id="zoom-slider"
+						type="range"
+						min="1"
+						max="200"
+						step="1"
+						[value]="zoomLevel"
+						(input)="onZoomSliderInput($event)"
+						/>
+					</div>
+				</div>
+				
+				<button (click)="enableRegions()" [class.active]="regionsActive">Regions</button><br>
+				<button (click)="enableHover()" [class.active]="hoverActive">Pointer</button>
+				<div class="spectrogram-wrapper">
+					<button (click)="showSpectrogram()" [class.active]="spectrogramVisible">
+						Spectrogram
+					</button>
+					<div #spectrogramContainer class="spectrogram"></div>
+					<div *ngIf="spectrogramLoading" class="water-loader">
+						<div class="water"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 	`,
   	styleUrls: ['./listening-area.css']
@@ -60,32 +79,52 @@ import { AudioService } from '../../services/audio-service';
 export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	@ViewChild('waveformContainer', { static: true }) waveformRef!: ElementRef;
 	@ViewChild('spectrogramContainer', { static: true }) spectrogramRef!: ElementRef;
+	@ViewChild('timelineContainer', { static: true }) timelineRef!: ElementRef;
 
 	private wavesurfer!: WaveSurfer;
 
 	audioFileName?: string;
 	private envelope?: ReturnType<typeof EnvelopePlugin.create>;
 	private zoom?: ReturnType<typeof ZoomPlugin.create>;
-	private regions?: ReturnType<typeof RegionsPlugin.create>;
+	// public regions?: ReturnType<typeof RegionsPlugin.create>;
 	private timeline?: ReturnType<typeof TimelinePlugin.create>;
 	private hover?: ReturnType<typeof HoverPlugin.create>;
+	private regionsPlugin?: ReturnType<typeof RegionsPlugin.create>;
 
 	constructor(
 		private route: ActivatedRoute,
 		private workService: WorkService,
-		private audioService: AudioService
+		private audioService: AudioService,
+		
 	) {}
 
 	private isMobile = top!.matchMedia('(max-width: 900px)').matches;
+	private spectrogramPlugin?: ReturnType<typeof SpectrogramPlugin.create>;
+	private nextRegionHue = 180;
+	
 
+	//dichiarazioni per wavesurfer
 	playing = false;
-	// panelOpen = false;
+	panelOpen = false;
 	audioLoaded = false;
 	showPanel = false;
-
+	envelopeActive = false;
+	zoomActive     = false;
+	regionsActive  = false;
+	hoverActive    = false;
+	// spectrogramActive = false;
 	loading = true;
   	waveformReady = false;
   	loadError = false;
+	spectrogramVisible = false;
+	spectrogramLoading = false;
+	zoomLevel: number = 1;
+	maxZoom: number = 200;
+	minZoom: number = 1;
+	trackpadZoomEnabled: boolean = false;
+
+
+	//METODI LISTENING AREA
 
 	public get fullUrl():string | null  {
 		return this.audioFileName
@@ -93,10 +132,35 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		: null;
 	}
 
+
 	public get audioType(): string {
 		if (!this.audioFileName) return 'audio/mpeg';
 		const ext = this.audioFileName.split('.').pop()?.toLowerCase();
 		return ext === 'wav' ? 'audio/wav' : 'audio/mpeg';
+	}
+
+	private setupTrackpadZoom(): void {
+		const container = this.waveformRef.nativeElement as HTMLElement;
+		container.addEventListener('wheel', (event) => {
+			if(event.ctrlKey || event.metaKey) {
+				event.preventDefault();
+				this.trackpadZoomEnabled = true;
+
+				const delta = Math.sign(event.deltaY);
+				this.zoomLevel = Math.max(
+					this.minZoom,
+					Math.min(this.maxZoom, this.zoomLevel - delta * 5)
+				);
+				this.wavesurfer.zoom(this.zoomLevel);
+			}
+		});
+	}
+
+	private getNextColor(): string {
+		const color = `hsla(${this.nextRegionHue}, 100%, 50%, 0.3)`;
+		this.nextRegionHue += 15;
+		if (this.nextRegionHue > 330) this.nextRegionHue = 180;
+		return color;
 	}
 
 	ngAfterViewInit(): void {
@@ -108,8 +172,8 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
       				console.error('Nessun audio associato a questo work:', work);
 					return;
     			} 
-
 				const fullName = work.audio.storedFileName;
+
 				this.audioFileName = fullName.includes('/') 
 					? fullName.split('/').pop()! 
 					: fullName;
@@ -120,11 +184,10 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 							console.error('waveformRef non disponibile');
 							return;
 						}
-
 						const audioUrl = URL.createObjectURL(blob);
 
 						this.wavesurfer = WaveSurfer.create({
-							container: '#waveform',
+							container: this.waveformRef.nativeElement,
 							waveColor: '#00ffff',
 							progressColor: '#ffffff',
 							cursorColor: '#333',
@@ -134,16 +197,18 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 							minPxPerSec: 100,
 							height: 100,
 							plugins: 
-								[TimelinePlugin.create({ container: '#timeline' })]
+								[TimelinePlugin.create({ container: this.timelineRef.nativeElement })]
 						});
-						
+						this.setupTrackpadZoom();
+						this.spectrogramRef.nativeElement.style.display = 'none';
 						this.wavesurfer.on('ready', () => {
 							this.audioLoaded = true;
+							// this.showSpectrogram();
 						});
 
-						this.wavesurfer.on('finish', () => {
-							this.playing = false
-						});
+						// this.wavesurfer.on('finish', () => {
+						// 	this.playing = false
+						// });
 
 						this.wavesurfer.load(audioUrl);
 					
@@ -159,6 +224,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		});
 	}
 
+
 	ngOnChanges(changes: SimpleChanges): void {
 		if(changes['audioFileName'] && !changes['audioFileName'].isFirstChange()) {
 			if(this.fullUrl) {
@@ -166,26 +232,34 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			}
 		}
 	}
+
+
 	showSpectrogram():void {
 		if (!this.wavesurfer) {
 			console.error('wavesurfer non inizializzato');
 			return;
 		}
-
-		const spectrogramPLugin = this.wavesurfer.registerPlugin(
-			SpectrogramPlugin.create({
-				container: this.spectrogramRef.nativeElement, 
-				labels: true,
-				height: 200,
-				splitChannels: true,
-				scale: 'mel', // or 'linear', 'logarithmic', 'bark', 'erb'
-				frequencyMax: 10000,
-				frequencyMin: 10,
-				fftSamples: 1024,
-				labelsBackground: 'rgba(0, 0, 0, 0.1)',
-			})
-		);
+		if (!this.spectrogramPlugin) {
+			this.spectrogramPlugin = this.wavesurfer.registerPlugin(
+				SpectrogramPlugin.create({
+					container: this.spectrogramRef.nativeElement, 
+					labels: true,
+					height: 200,
+					splitChannels: false,
+					scale: 'mel', // or 'linear', 'logarithmic', 'bark', 'erb'
+					frequencyMax: 8000,
+					frequencyMin: 10,
+					fftSamples: 512,
+					labelsBackground: 'rgba(0, 0, 0, 0.1)',
+				})
+			);
+    	}
+		this.spectrogramVisible = !this.spectrogramVisible;
+		this.spectrogramRef.nativeElement.style.display = this.spectrogramVisible
+			? 'block'
+			: 'none';
 	}
+
 
   	enableEnvelope() {
 		if (!this.envelope) {
@@ -208,26 +282,74 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 				console.log('Envelope changed', points)
 			);
 		}
-  	}
+		this.envelopeActive = !this.envelopeActive;
+	}
 
-	enableZoom() {
+	enableZoom(event?: Event): void {
 		if (!this.zoom) {
 			this.zoom = this.wavesurfer.registerPlugin(
 				ZoomPlugin.create({
-				scale: 0.5,
-				maxZoom: 1000,
+					scale: 0.5,
+					maxZoom: 1000,
 				})
 			);
 			this.wavesurfer.on('zoom', (minPxPerSec) =>
 				console.log('Zoom level:', minPxPerSec)
 			);
 		}
+
+		this.zoomActive = !this.zoomActive;
+
+		const level = this.zoomActive ? this.zoomLevel : 1;
+		this.wavesurfer.zoom(level);
 	}
 
-	enableRegions() {
-		if (!this.regions) {
-			this.regions = this.wavesurfer.registerPlugin(RegionsPlugin.create());
+	onZoomSliderInput(event: Event): void {
+		const pxPerSec = parseInt((event.target as HTMLInputElement).value, 10);
+		this.zoomLevel = pxPerSec;
+		if (this.zoomActive) {
+			this.wavesurfer.zoom(pxPerSec);
 		}
+	}
+
+	enableRegions():void {
+		if (this.regionsPlugin) {
+			this.regionsActive = !this.regionsActive;
+			this.regionsPlugin.getRegions().forEach( region => {
+				(region.element as HTMLElement).style.display = this.regionsActive ? 'block' : 'none';
+			});
+			return;
+		}
+		const cfg: any = {
+			dragSelection: { slop: 5 },
+			dragToSeek: false 
+		};
+
+		this.regionsPlugin = this.wavesurfer.registerPlugin(
+			RegionsPlugin.create(cfg)
+		);
+
+		this.regionsActive = true;
+		this.nextRegionHue = 180;
+		
+		this.wavesurfer.on('click', (time: number) => {
+			if (!this.regionsActive) return;
+
+			const duration = this.wavesurfer.getDuration();
+    		const regionDuration = 5;
+			const start = Math.max(0, time - regionDuration / 2);
+			const end = Math.min(duration, time + regionDuration / 2);
+
+			const color = this.getNextColor();
+
+			this.regionsPlugin!.addRegion({ start, end, color });
+		});
+
+		this.regionsPlugin.on('region-created', (region: any) => {
+			region.update({ color: `hsla(${this.nextRegionHue}, 100%, 50%, 0.3)` });
+			region.element?.classList.add('custom-region');
+		});
+		
 	}
 
 	enableTimeline() {
@@ -240,17 +362,21 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 	enableHover() {
 		if (!this.hover) {
-		this.hover = this.wavesurfer.registerPlugin(
-			HoverPlugin.create({
-			lineColor: '#ff0000',
-			lineWidth: 1,
-			labelBackground: '#555',
-			labelColor: '#fff',
-			labelSize: '15px',
-			labelPreferLeft: false,
-			})
-		);
+			this.hover = this.wavesurfer.registerPlugin(
+				HoverPlugin.create({
+				lineColor: '#ff0000',
+				lineWidth: 1,
+				labelBackground: '#555',
+				labelColor: '#fff',
+				labelSize: '15px',
+				labelPreferLeft: false,
+				})
+			);
 		}
+		this.hoverActive = !this.hoverActive;
+		// rimuoviamo o aggiungiamo il canvas pointer
+		const hoverEl = this.waveformRef.nativeElement.querySelector('.wavesurfer-hover-pointer');
+		if (hoverEl) hoverEl.style.display = this.hoverActive ? 'block' : 'none';
 	}
 
 	togglePanel() {
