@@ -6,6 +6,7 @@ import { Title } from "@angular/platform-browser";
 import { PageResponse } from "../models/page-response-model";
 import { Router } from "@angular/router";
 import { AudioService } from "./audio-service";
+import { WorkDto } from "../models/dto/work-dto";
 
 @Injectable({providedIn: 'root'})
 export class WorkService {
@@ -39,11 +40,15 @@ export class WorkService {
     }
 
     updateWork(id: number, updates: Partial<WorkModel>): Observable<WorkModel> {
-        return this._http.put<WorkModel>(`${this._url}/${id}`, updates);
+        return this._http.put<WorkModel>(`${this._url}/upload/${id}`, updates);
     }
 
     uploadWork(form: FormData, options?: any): Observable<any> {
         return this._http.post<any>(`${this._url}/upload`, form, options);
+    }
+
+    updateWorkFull(id: number, dto: WorkDto): Observable<WorkDto> {
+        return this._http.put<WorkDto>(`${this._url}/update/${id}`, dto);
     }
 
 }

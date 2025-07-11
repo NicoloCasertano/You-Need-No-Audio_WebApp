@@ -1,5 +1,4 @@
 import { AudioModel } from "./audio-model"
-import { NoteModel } from "./note-model"
 import { UserModel } from "./user-model"
 
 export interface WorkModel {
@@ -11,6 +10,6 @@ export interface WorkModel {
     img: string,
     userId: number,
     dataDiCreazione: Date,
-    nota: NoteModel|null,
+    nota: string|null,
     users: UserModel[]|null;
 }
