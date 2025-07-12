@@ -1,9 +1,40 @@
-<p>log-in-area works!</p>
-<div>
-    <Form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <input type="email" id="email" placeholder="Your email" formControlName="email">
-        <input type="password" id="password" placeholder="Your Password" minlength="5" maxlength="30" formControlName="password">
-        <button (click)="onSubmit()">Welcome</button>
-        <button (click)="gotToSignIn()">Register</button>
-    </Form>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log-In-Area</title>
+</head>
+<body>
+    
+    
+    <div class="log-in-area">
+        <Form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-log">
+            <div class="log-in-div-header">
+                <div class="scroll-container">
+                    <h1 class="title-text">
+                        YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
+                        YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
+                    </h1>
+                </div>
+            </div>
+            <div class="log-in-div">
+                <div class="blur-point"></div>
+                <h2>LOG IN HERE</h2>  
+                <input type="email" id="email" placeholder="Your email" formControlName="email" class="email"><br>
+                <input type="password" id="password" placeholder="Your Password" minlength="5" maxlength="30" formControlName="password" class="password"><br>
+                <button (click)="onSubmit()" class="welcome-button">Welcome</button>
+            </div>
+            
+            <div class="register-div">
+                <div class="blur-point-register"></div>
+                <p class="register-message">You don't have an account? <br> Please click the Register button
+                    <br><button (click)="gotToSignIn()" class="register-button">Register</button>
+                </p> 
+            </div>
+        </Form>
+    </div>
+    
+</body>
+</html>
+

@@ -41,5 +41,9 @@ export class RegisterAreaComponent {
             }
         });
     }
+
+    goToLogIn() {
+        this._router.navigate(['/log-in-area']);
+    }
 }
 

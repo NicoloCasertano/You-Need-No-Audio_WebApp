@@ -1,0 +1,193 @@
+.log-in-area {
+    background-color: black;
+}
+/* hero */
+.log-in-div { 
+    background-color: rgb(0, 0, 0);
+    padding: relative;
+    position: fixed;
+    top: 25%; left: 0;
+    width: 100%;
+    z-index: -1;
+}
+.log-in-div-header { 
+    background-color: rgb(0, 0, 0);
+    padding: relative;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 0px;
+    z-index: 0;
+}
+.log-in-div::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('https://imgur.com/0E9PbDP.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 85%;
+    z-index: -2;
+}
+
+/* section */
+.register-div { 
+    margin-top: 10%;
+    background-color: rgb(0, 0, 0);
+    padding: 25%;
+    position: relative;
+    z-index: 2;
+    margin-top: 100vh; 
+}
+.register-div::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('https://imgur.com/8oqUq1M.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 1;
+    opacity: 60%;
+}
+
+body {
+    background-color: black;
+}
+/* NO SAINTZ CHE SI MUOVE */
+.title-text {
+    white-space: nowrap;
+    color: rgb(247, 247, 247);
+    text-align: center;
+    animation: scroll-text 30s linear infinite;
+    margin-top: 5%;
+    text-shadow: 0 0 0.1px rgba(216, 161, 161, 0.7), 0 0 7px rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.3);
+    z-index: 1;
+    top: 0;
+}
+.scroll-text-container {
+  width: 400%;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: #000000; 
+}
+@keyframes scroll-text {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes pulseNeon {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.5);
+  }
+}
+.welcome-button,
+.register-button {
+    background-color: #222;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(0, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+.welcome-button:hover,
+.register-button:hover {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.7), 0 0 20px rgba(0, 255, 255, 0.5);
+  transform: scale(1.05);
+  background-color: #0a0a0a;
+}
+.register-button {
+    margin: 0 auto;
+    margin-top: 5%;
+}
+h2 {
+    color: rgb(247, 247, 247);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0%;
+    font-size: xx-large;
+    text-shadow: 0 0 0.1px rgba(216, 161, 161, 0.7), 0 0 7px rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.3);
+
+}
+input-text {
+
+}
+.blur-point {
+    margin-top: 10%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px; 
+    height: 300px; 
+    background-color: black;
+    filter: blur(60px); 
+    border-radius: 30%; 
+    opacity: 95%;
+    z-index: -1;
+    text-align: center;
+}
+.blur-point-register {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; 
+    height: 200px; 
+    background-color: black;
+    filter: blur(30px); 
+    border-radius: 40%; 
+    opacity: 90%;
+    z-index: 1;
+}
+
+.welcome-button {
+    margin-left: 0.5%;
+    margin-top: 3%;
+}
+.register-message {
+    color: #fff;
+    padding-top: 1%;
+    margin-left: 1%;
+    position: relative;
+    flex-direction: row;
+    text-align: center;
+    z-index: 1;
+    font-size: large;
+    text-shadow: 0 0 0.5px rgba(216, 161, 161, 0.7), 0 0 1.5px rgba(255, 255, 255, 0.5), 0 0 3px rgba(255, 255, 255, 0.3);
+}
+.email,
+.password {
+    background-color: #222;
+    border-radius: 3px;
+    border: none;
+    font-size: medium;
+    margin-top: 2%;
+    width: 30%;
+    color: #fff;
+}
+::placeholder {
+    color: #acacac;
+}
+
+.email {
+    margin-left: 1%;
+}
+.password {
+    margin-left: 1%;
+}
+.form-log {
+    text-align: center;
+    margin-top: 3%;
+}
