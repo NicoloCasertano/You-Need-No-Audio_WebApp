@@ -8,8 +8,12 @@ export interface WorkModel {
     key: string,
     audio: AudioModel,
     img: string,
-    userId: number,
-    dataDiCreazione: Date,
+    user: {
+        userId: number;
+        userName: string;
+        artName: string;
+        email: string;
+    },
+    dataDiCreazione: string;
     nota: string|null,
-    users: UserModel[]|null;
 }

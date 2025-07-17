@@ -1,0 +1,143 @@
+.work-list-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+    width: 100%;
+    overflow: hidden;
+    overflow: visible;
+    background: none;
+} 
+
+.work-list-container {
+    width: 100%;
+    padding: 2rem 1rem 1rem 1rem;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.works-title {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-family: 'Segoe UI', sans-serif;
+    text-shadow: 0 0 3px #0ff, 0 0 10px rgba(0, 255, 255, 0.4);
+    text-align: center;
+    border: none;
+    z-index: 5;
+    position: relative;
+    background: none;
+    background-color: transparent;
+    z-index: 20;
+
+}
+
+/* Card stile */
+.work-card {
+  margin-top: 5%;
+  margin-left: 2%;
+    flex-shrink: 0;
+    width: 200px;
+    height: 400px;
+    padding: 1rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #0ff;
+    border: 1px solid #0ff;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    background-image: url(https://imgur.com/SAD3JAy.jpg);
+    background-size: cover;
+    z-index: 30;
+}
+.work-card:hover {
+    background-color: #0ff;
+    color: #cefffd;
+    box-shadow: 0 0 20px #0ff;
+    transform: translateY(-5px) scale(1.03); /* Sollevamento */
+    transition: all 0.3s ease;
+    z-index: 40;
+}
+
+/* Rimuovi sottolineature blu */
+.work-card h3,
+.work-card p {
+    text-decoration: none;
+    margin: 0;
+    color: inherit;
+}
+
+/* Scroll buttons */
+.scroll-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 2.5rem;
+    color: #0ff;
+    cursor: pointer;
+    z-index: 3;
+    padding: 0 0.8rem;
+}
+.scroll-button:hover {
+    transform: translateY(-50%) scale(1.1);
+    color: #fff;
+}
+
+.scroll-button-div {
+    height: auto;
+    width: 3px;
+}
+
+.scroll-button.left {
+    left: 0;
+    width: 3px;
+}
+
+.scroll-button.right {
+    right: 1%;
+    width: 3px;
+}
+
+
+/* //SCROLLBAR */
+/* Scroll container */
+.work-scroll {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-behavior: smooth;
+    gap: 1.2rem;
+    padding-bottom: 1rem;
+    position: relative;
+    scrollbar-width: medium; /* Firefox */
+    scrollbar-color: transparent transparent;
+    z-index: 1;  
+    transition: scrollbar-color 0.3s ease;
+    margin-left: 3%;
+}
+
+.work-scroll:hover {
+    scrollbar-color: #0ff #111; /* Firefox scrollbar on hover */
+    
+}
+
+/* Chrome & WebKit scrollbar - hidden by default, visible on hover */
+.work-scroll::-webkit-scrollbar {
+    height: 8px;
+    background: transparent;
+    transition: 0.3s ease;
+}
+.work-scroll:hover::-webkit-scrollbar {
+    background: rgba(0, 255, 255, 0.1);
+}
+
+.work-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    transition: 0.3s ease;
+}
+.work-scroll:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.6); /* visibile solo su hover */
+}

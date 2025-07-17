@@ -1,36 +1,42 @@
-<p>upload-work works!</p>
-<div
-class="drop-zone"
-(dragenter)="onDragOver($event)"
-(dragover)="onDragOver($event)"
-(dragleave)="onDragLeave($event)"
-(drop)="onDrop($event)">
-    <p *ngIf="!file">Trascina il file audio qui</p>
-    <p *ngIf="file"> {{ file.name }}</p>
-    <button (click)="goToUserPage()">Profilo Utente</button>
-    <button (click)="goToHome()">Torna alla Home</button>
-</div>
+<div class="container">
+    <button (click)="goToHome()" class="logo"></button>
+    <h1>CARICA UN NUOVO LAVORO</h1>
+    <div
+    class="drop-zone"
+    (dragenter)="onDragOver($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+       
+        <p *ngIf="!file">Trascina il file Audio qui</p>
+        <p *ngIf="file"> {{ file.name }}</p>
+        <button (click)="goToUserPage()" class="vai-user-page">Torna al tuo Profilo</button>
+    </div>
 
-<div *ngIf="file" class="work-form">
-    <h3>Details</h3>
+    <div *ngIf="file" class="work-form">
+        <h3>New Work</h3>
 
-    <label>Titolo:
-        <input type="text" [(ngModel)]="work.title" name="title" />
-    </label>
+        <label>Titolo:
+            <input type="text" [(ngModel)]="work.title" name="title" required class="title"/>
+        </label>
 
-    <label>Artista:
-        <input type="text" [(ngModel)]="work.userId" name="artName" />
-    </label>
+        <div *ngIf="isAdmin">
+            <label>Artista:</label>
+            <input type="text"[(ngModel)]="work.artName" name="artName" placeholder="Nome d'arte"/>
+            
+        </div>
+        
 
-    <label>BPM:
-        <input type="number" [(ngModel)]="work.bpm" name="bpm" />
-    </label>
+        <label>BPM:
+            <input type="number" [(ngModel)]="work.bpm" name="bpm" required class="bpm"/>
+        </label>
 
-    <label>Tonalità:
-        <select [(ngModel)]="work.key" name="key">
-        <option *ngFor="let key of keys" [value]="key">{{ key }}</option>
-        </select>
-    </label>
+        <label>Tonalità:
+            <select [(ngModel)]="work.key" name="key" required class="key">
+            <option *ngFor="let key of keys" [value]="key">{{ key }}</option>
+            </select>
+        </label>
 
-    <button (click)="submitWork()">Salva Work</button>
+        <button (click)="submitWork()">Salva Work</button>
+    </div>
 </div>

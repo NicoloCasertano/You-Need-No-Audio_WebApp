@@ -31,10 +31,13 @@ import { WorkDto } from '../../models/dto/work-dto';
   	template: `
 		
 		<div class="container">
-			<!-- Animated Marquee Header -->
-			<h1>
-				NO SAINTZ NO SAINTZ NO SAINTZ NO SAINTZ NO SAINTZ NO SAINTZ NO SAINTZ
-			</h1><br>
+			<div class="scroll-container">
+                    <h1 class="title-text">
+                        YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
+                        YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
+                    </h1>
+                </div>
+			
 			<!-- Waveform + Timeline -->
 			<div #waveformContainer class="waveform" [class.loaded]="audioLoaded"></div>
 			<div #timelineContainer id="timeline" [class.loaded]="audioLoaded"></div>
@@ -87,9 +90,9 @@ import { WorkDto } from '../../models/dto/work-dto';
 				<button (click)="enableHover()" [class.active]="hoverActive">Pointer</button>
 				<button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button>
 
-				<div class="spectrogram-wrapper">
+				<!-- <div class="spectrogram-wrapper">
 					<div #spectrogramContainer class="spectrogram"></div>
-				</div>
+				</div> -->
 			</div>
 			<div class="regions-notes-list">
 				<ul>

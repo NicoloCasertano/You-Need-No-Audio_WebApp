@@ -9,22 +9,26 @@
     
     
     <div class="log-in-area">
+        <div class="logo"></div>
         <Form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-log">
             <div class="log-in-div-header">
-                <div class="scroll-container">
+                
+            </div>
+            <div class="log-in-div">
+                <div class="blur-point"></div>
+                <h2>YOU NEED LOG IN</h2>
+                <input type="email" id="email" placeholder="Your email" formControlName="email" class="email"><br>
+                <input type="password" id="password" placeholder="Your Password" minlength="5" maxlength="30" formControlName="password" class="password"><br>
+                <button (click)="onSubmit()" class="welcome-button">Welcome</button><br>
+                <p class="register-message">Don't Have an Account? Scroll down ⇩ </p>
+                <br><br><br><br><br><div class="scroll-container">
                     <h1 class="title-text">
                         YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
                         YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
                     </h1>
                 </div>
             </div>
-            <div class="log-in-div">
-                <div class="blur-point"></div>
-                <h2>LOG IN HERE</h2>  
-                <input type="email" id="email" placeholder="Your email" formControlName="email" class="email"><br>
-                <input type="password" id="password" placeholder="Your Password" minlength="5" maxlength="30" formControlName="password" class="password"><br>
-                <button (click)="onSubmit()" class="welcome-button">Welcome</button>
-            </div>
+            
             
             <div class="register-div">
                 <div class="blur-point-register"></div>

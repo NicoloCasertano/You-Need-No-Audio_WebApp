@@ -1,16 +1,158 @@
+/* DROP ZONE */
 .drop-zone {
-  padding: 100px;
+  margin-top: 7%;
+  padding: 3rem;
   text-align: center;
-  margin-bottom: 1rem;
-  border-radius: 5px;
+  margin-bottom: 2rem;
+  border-radius: 8px;
   cursor: pointer;
-  background: #b648b8;
-  opacity: 80%;
+  background: rgba(0, 255, 255, 0.257);
+  border: 0.5px dashed #0ff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.357);
+  animation: pulseNeon 2.5s infinite;
+  transition: background-color 0.3s, transform 0.3s;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  width: 50%;
+  height: 30%;
+  margin-left: 20%;
+  z-index: 3;
 }
 
+.drop-zone:hover {
+  background: rgba(9, 136, 136, 0.521);
+  transform: scale(1.02);
+}
+
+/* FILE NAME TEXT */
+.drop-zone p {
+  font-size: 1.1rem;
+  color: #0ff;
+  text-shadow: 0 0 3px #0ff;
+}
+
+/* FORM CONTAINER */
 .work-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 400px;
+  gap: 1.2rem;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid #0ff;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  animation: pulseNeon 2s infinite;
+}
+
+/* FORM HEADLINE */
+.work-form h3 {
+  color: #0ff;
+  font-size: 1.6rem;
+  text-align: center;
+  text-shadow: 0 0 10px #0ff;
+  margin-bottom: 1rem;
+}
+
+/* INPUT FIELDS */
+.work-form input[type="text"],
+.work-form input[type="number"],
+.work-form select {
+  padding: 0.6rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4) 0 0 30px rgba(0, 255, 255, 0.4);
+  transition: box-shadow 0.3s;
+}
+
+.work-form input:focus,
+.work-form select:focus {
+  outline: none;
+  box-shadow: 0 0 12px #0ff;
+}
+
+/* LABELS */
+.work-form label {
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+}
+
+/* BUTTONS (riusiamo lo stile globale) */
+.work-form button,
+.drop-zone button {
+  background-color: #111;
+  color: #0ff;
+  border: 1px solid #0ff;
+  box-shadow: 0 0 5px #0ff;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.work-form button:hover,
+.drop-zone button:hover {
+  background-color: #0ff;
+  color: #000;
+  box-shadow: 0 0 15px #0ff;
+  transform: scale(1.05);
+}
+
+/* ANIMAZIONE PULSE */
+@keyframes pulseNeon {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.3), 0 0 16px rgba(0, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 255, 255, 0.6), 0 0 24px rgba(0, 255, 255, 0.3);
+  }
+}
+
+.logo {
+    content: "";
+    position: fixed;
+    top: 0; right: 0;
+    margin-left: 80%;
+    width: 100%; height: 100%;
+    background-image: url(../../../../../../../Desktop/GRAFICA_NS/TYPE_LOGO/CHROME.png);
+    background-size: cover;
+    background-color: transparent;
+    height: 70px;
+    border: none;
+    width: 160px;
+    left: 0;
+    border: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    z-index: 1;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 5px #0ff) brightness(1.5);
+    transform: scale(1.05);
+}
+
+.container::before{
+  content: "";
+  position: fixed;
+  top: 0; right: 0;
+  background-image: url(https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDU1Z3oxdDhmazhncTdha2Fham5mNnQ3OGZ3bmFuMHo0Z3lybTNjOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ljqS9t5TmzMsfQ4FWf/giphy.gif);
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+  opacity: 30%;
+  z-index: -2;
+}
+
+h1 {
+  color: #fff;
+  text-shadow: 0 0 5px #ececec;
+  text-align: center;
 }

@@ -1,0 +1,14 @@
+.gif-div {
+    background-image: url(https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDU1Z3oxdDhmazhncTdha2Fham5mNnQ3OGZ3bmFuMHo0Z3lybTNjOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ljqS9t5TmzMsfQ4FWf/giphy.gif);
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 80%;
+    z-index: -1;
+}
+.beat-list {
+    background-image: url(https://imgur.com/nMicj0C.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 80%;
+    z-index: 1;
+}

@@ -1,12 +1,20 @@
-<p>home works!</p>
-<div id="advSe"></div>
-    <div class="close-advSe">
-        <button (click)="closeAdv()">◀</button>
-        <button (click)="goToUserPage()">Profilo Utente </button>
-    </div>
+
+
+
+<div class="gif-div">
+    <h1>NO SAINTZ WEBB APP</h1>
+    <h3>"YOU NEED NO SAINTZ"</h3>
 
     <div id="viewArea">
     @if (workList.length) {
         <app-work-list [works]='this.workList'></app-work-list>
-    }
-    
+    }        
+
+    <div id="advSe"></div>
+    <div class="close-advSe">
+        <button (click)="closeAdv()">◀</button>
+        <button (click)="goToUserPage()">Vai al tuo Profilo</button>
+    </div>
+</div>
+<!-- TODO: da mettere audio nel model beat, controllare il backend e fare anche beatservice qui nel frontend -->
+<div class="beat-list"></div>

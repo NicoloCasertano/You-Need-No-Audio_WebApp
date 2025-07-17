@@ -16,7 +16,7 @@ export class AuthService {
     private _url: string = `${environment.apiUrl}/authentications`;
     private _http = inject(HttpClient);
     private _router = inject(Router);
-    private tokenKey = 'jwt_token';
+    private readonly tokenKey = 'jwt_token';
 
     constructor(_http: HttpClient){}
 
@@ -48,7 +48,7 @@ export class AuthService {
     }
 
     getToken():string|null {
-        return localStorage.getItem("jwt_token");
+        return localStorage.getItem(this.tokenKey);
     }
 
     getUserId():number|null {
@@ -81,5 +81,17 @@ export class AuthService {
     }
     hasRole(role: string): boolean {
         return this.getUserRoles().includes(role);
+    }
+    getUserEMail():string | null {
+        const p = this.decodePayload();
+        return p?.sub ?? null;
+    }
+    getUserName():string | null {
+        const p = this.decodePayload();
+        return p?.userName ?? null;
+    }
+    getArtName(): string | null {
+        const p = this.decodePayload();
+        return p?.artName ?? null;
     }
 }

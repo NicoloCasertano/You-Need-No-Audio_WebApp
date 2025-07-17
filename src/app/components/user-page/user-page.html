@@ -1,11 +1,29 @@
-<p>user-page works!</p>
-<button (click)="goToHome()">Vai alla Home</button>
-<div>
-    <button (click)="showUserWorks(userId)">Your Works</button>
-    <div>
-        <button (click)="goToUploadWork()">Upload a new Work</button>
+<body>
+    <button (click)="goToHome()" class="logo"></button>
+    <div class="blur-vertical-line"></div>
+    <div class="works-div">
+        
+        <div class="user-title-page">
+            <h1 (event)="ngOnInit()">{{ this.artName }}</h1>
+        
+        </div>
+        <div>
+            <button (click)="goToHome()" class="home">Vai alla Home</button>
+        </div>
+        
     </div>
-    <ng-container *ngIf="works.length">
-        <app-work-list [works]="works" (selected)="onSelect($event)"></app-work-list>
-    </ng-container>
-</div>
+
+    <app-work-list [works]="works"></app-work-list>
+    <ng-template #noWorks>
+        <p>Non ci sono lavori per questo utente.</p>
+    </ng-template>
+
+
+    <ng-template #loading>
+    <p>Caricamento in corso…</p>
+    </ng-template>
+
+    <div class="upload-div">
+        <a (click)="goToUploadWork()" class="upload-work">UPLOAD <br><br> NEW WORK</a>
+    </div>
+</body>

@@ -1,21 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
 import { CommonModule } from '@angular/common'; 
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/authorization-service';
 import { WorkService } from '../../services/work-service';
-import { WorkModel } from '../../models/work-model';
-import { routes } from '../../app.routes';
 
-interface Work {
-	title: string;
-	bpm: string;
-	key: string;
-	artName: string;
-	dataDiCreazione: string;
-	audioFile?: File;
-}
 @Component({
 	standalone: true,
 	selector: 'app-upload-work',
@@ -23,17 +13,28 @@ interface Work {
 	styleUrls: ['./upload-work.css'],
 	imports: [FormsModule, CommonModule]
 })
-export class UploadWork {
-	work: Partial<WorkModel> = {};  
-	file?: File;
-	keys = ['A', 'A#', 'B','C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-
+export class UploadWork implements OnInit{
+	
 	private _router = inject(Router);
 	private _authService = inject(AuthService);
-	userId = this._authService.getUserId();
 	private _workService = inject(WorkService);
 
+	work: {
+		title?: string,
+		artName?: string,
+		bpm?: number,
+		key?: string,
+  	} = {};  
+	file?: File;
+	keys = ['A', 'A#', 'B','C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+	userId = this._authService.getUserId();
+	isAdmin = false;
+	currentArtName = '';
+
 	constructor(private http: HttpClient) {}
+	ngOnInit(): void {
+		throw new Error('Method not implemented.');
+	}
 
 	onDragOver(event: DragEvent) {
 		event.preventDefault();
@@ -50,33 +51,40 @@ export class UploadWork {
 		}
 	}
 
+	ngOnIiti() {
+		const payload = this._authService.decodePayload();
+		this.isAdmin = payload?.['roles']?.includes('ROLE_ADMIN') || false;;
+
+		if (!this.isAdmin) {
+			this.currentArtName = payload?.['artName'] || '';
+		}
+	}
+	onFileSelected(ev: Event) {
+		const input = ev.target as HTMLInputElement;
+		this.file = input.files?.[0];
+	}
+
 	submitWork() {
-		if(!this.file) return;
+		if(!this.file || !this.work.title || !this.work.bpm || !this.work.key) return;
 
-		const dto: any = {
-			title: this.work.title,
-			bpm: Number(this.work.bpm),
-			key: this.work.key,
-			dataDiCreazione: new Date().toISOString().slice(0, 10),
-			userId: this._authService.getUserId()
-		};
-		
+		const targetArtName = this.isAdmin ? this.work.artName?.trim() : this.currentArtName;
+		// const targetArtName = this.work.artName?.trim() ? this.currentArtName : this.currentArtName;
+		if (!targetArtName) {
+			console.error('Unvalid Art Name');
+			return;
+		}
+
 		const form = new FormData();
-		form.append('file', this.file!);
-		Object.entries(dto).forEach(([k, v]) => form.append(k, v!.toString()));
+		form.append('file', this.file);
+		form.append('title', this.work.title!);
+		form.append('artName', targetArtName);
+		form.append('bpm', this.work.bpm!.toString());
+		form.append('key', this.work.key!);
+		form.append('dataDiCreazione', new Date().toISOString().slice(0, 10));
 
-		this._workService.uploadWork(form, { observe: 'response' })
-			.subscribe({
-				next: resp => {
-					const dto = resp.body as WorkModel;  
-      				if (dto?.workId) {
-        				console.log('Upload completato con successo');
-						this._router.navigate(['/listening-area', dto.workId]);
-					} else {
-						console.error('workId mancante nella risposta: ', dto);
-					}
-				}, 
-				error: e => console.error("Errore durante l'upload", e)
+		this._workService.uploadWork(form).subscribe({
+			next: w => this._router.navigate(['/listening-area', w.workId]),
+			error: err => console.error('Upload fallito:', err)
 		});
 	}
 
